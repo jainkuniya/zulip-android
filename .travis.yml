@@ -38,4 +38,7 @@ android:
 # run gradle lint and
 # gradle build without using using tests for now (assemble) on debug build only
 script:
+   - ls
+   - cd .Android
+   - cd lint
    - ./scripts/lint_script.sh
