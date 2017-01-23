@@ -39,6 +39,7 @@ android:
 # gradle build without using using tests for now (assemble) on debug build only
 script:
    - ls
+   - echo $ANDROID_LINT_JARS 
    - cd
    - ls
    - cd .Android
