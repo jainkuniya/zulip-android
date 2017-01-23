@@ -1619,7 +1619,7 @@ public class ZulipActivity extends BaseActivity implements
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
     }
-    
+
 
     private void pushListFragment(MessageListFragment list, String back) {
         currentList = list;
