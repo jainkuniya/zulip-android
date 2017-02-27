@@ -272,12 +272,14 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             messageHeaderParent.setColor((message.getStream() == null) ? mDefaultStreamHeaderColor : message.getStream().getParsedColor());
             items.add(messageAndHeadersCount + 1, messageHeaderParent); //1 for LoadingHeader
             notifyItemInserted(messageAndHeadersCount + 1);
+            message.setHeaderPosition(messageAndHeadersCount + 1);
             items.add(messageAndHeadersCount + 2, message);
             notifyItemInserted(messageAndHeadersCount + 2);
             lastHolderId.setLength(0);
             lastHolderId.append(messageHeaderParent.getId());
             return true;
         } else {
+            message.setHeaderPosition(messageAndHeadersCount + 1);
             items.add(messageAndHeadersCount + 1, message);
             notifyItemInserted(messageAndHeadersCount + 1);
             return false;
@@ -358,7 +360,7 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 final MessageHeaderParent.MessageHeaderHolder messageHeaderHolder = ((MessageHeaderParent.MessageHeaderHolder) holder);
 
                 if (messageHeaderParent.getMessageType() == MessageType.STREAM_MESSAGE) {
-                    messageHeaderHolder.streamTextView.setText(messageHeaderParent.getStream());
+                    messageHeaderHolder.streamTextView.setText(messageHeaderParent.getStream()+ " position:" + position);
                     messageHeaderHolder.topicTextView.setText(messageHeaderParent.getSubject());
 
                     ViewCompat.setBackgroundTintList(messageHeaderHolder.arrowHead, ColorStateList.valueOf(messageHeaderParent.getColor()));
@@ -371,7 +373,7 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 } else { //PRIVATE MESSAGE
                     messageHeaderHolder.streamTextView.setText(privateHuddleText);
                     messageHeaderHolder.streamTextView.setTextColor(Color.WHITE);
-                    messageHeaderHolder.topicTextView.setText(messageHeaderParent.getDisplayRecipent());
+                    messageHeaderHolder.topicTextView.setText(messageHeaderParent.getDisplayRecipent() + " position:" + position);
                     ViewCompat.setBackgroundTintList(messageHeaderHolder.arrowHead, ColorStateList.valueOf(mDefaultStreamHeaderColor));
                     messageHeaderHolder.streamTextView.setBackgroundColor(mDefaultStreamHeaderColor);
                 }
@@ -381,7 +383,7 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 MessageHolder messageHolder = ((MessageHolder) holder);
                 final Message message = ((Message) items.get(position));
 
-                messageHolder.contentView.setText(message.getFormattedContent(zulipApp));
+                messageHolder.contentView.setText(message.getFormattedContent(zulipApp) + " position:" + position + " headerPosition:" + message.getHeaderPosition());
                 messageHolder.contentView.setMovementMethod(LinkMovementMethod.getInstance());
 
                 int padding = ConvertDpPx.convertDpToPixel(4);
@@ -645,13 +647,14 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     @Override
     public void onBindHeaderViewHolder(MessageHeaderParent.MessageHeaderHolder viewholder, int position) {
-        Object object = getItem(position);
-        if (object instanceof  MessageHeaderParent) {
+        Object object = items.get(position);
+        if (object instanceof  MessageHeaderParent)
+        {
             final MessageHeaderParent messageHeaderParent = (MessageHeaderParent) object;
             final MessageHeaderParent.MessageHeaderHolder messageHeaderHolder = viewholder;
 
             if (messageHeaderParent.getMessageType() == MessageType.STREAM_MESSAGE) {
-                messageHeaderHolder.streamTextView.setText(messageHeaderParent.getStream());
+                messageHeaderHolder.streamTextView.setText(messageHeaderParent.getStream() + " position:" + position);
                 messageHeaderHolder.topicTextView.setText(messageHeaderParent.getSubject());
 
                 ViewCompat.setBackgroundTintList(messageHeaderHolder.arrowHead, ColorStateList.valueOf(messageHeaderParent.getColor()));
@@ -664,7 +667,7 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             } else { //PRIVATE MESSAGE
                 messageHeaderHolder.streamTextView.setText(privateHuddleText);
                 messageHeaderHolder.streamTextView.setTextColor(Color.WHITE);
-                messageHeaderHolder.topicTextView.setText(messageHeaderParent.getDisplayRecipent());
+                messageHeaderHolder.topicTextView.setText(messageHeaderParent.getDisplayRecipent() + " position:" + position);
                 ViewCompat.setBackgroundTintList(messageHeaderHolder.arrowHead, ColorStateList.valueOf(mDefaultStreamHeaderColor));
                 messageHeaderHolder.streamTextView.setBackgroundColor(mDefaultStreamHeaderColor);
             }
