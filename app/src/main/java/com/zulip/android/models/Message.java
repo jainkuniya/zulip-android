@@ -123,6 +123,9 @@ public class Message {
     @DatabaseField(columnDefinition = MESSAGE_EDIT_DATE)
     private Date editDate;
 
+    //headerPosition is the position of header in the list to which this message belongs
+    private int headerPosition;
+
     /**
      * Construct an empty Message object.
      */
@@ -723,6 +726,14 @@ public class Message {
             return UrlHelper.addHost(match);
         }
         return match;
+    }
+
+    public int getHeaderPosition() {
+        return headerPosition;
+    }
+
+    public void setHeaderPosition(int headerPosition) {
+        this.headerPosition = headerPosition;
     }
 
     public static class ZulipDirectMessage extends Message {

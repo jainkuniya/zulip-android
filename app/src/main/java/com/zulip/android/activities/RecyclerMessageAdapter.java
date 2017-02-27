@@ -41,6 +41,8 @@ import com.zulip.android.util.ZLog;
 import com.zulip.android.viewholders.LoadingHolder;
 import com.zulip.android.viewholders.MessageHeaderParent;
 import com.zulip.android.viewholders.MessageHolder;
+import com.zulip.android.viewholders.floatingRecyclerViewLables.FloatingHeaderAdapter;
+import com.zulip.android.viewholders.floatingRecyclerViewLables.FloatingHeaderDecoration;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -62,7 +64,8 @@ import java.util.Random;
  * headerParents are created if it doesn't matches the current header where the adding is being placed, this is done to match the UI as the web.
  * In addNewMessages the messages are loaded in the bottom and new headers are created if it does not matches the last header.
  */
-public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+        implements FloatingHeaderAdapter<MessageHeaderParent.MessageHeaderHolder> {
 
     public static final int VIEWTYPE_MESSAGE_HEADER = 1;
     public static final int VIEWTYPE_HEADER = 3; //At position 0
@@ -293,6 +296,8 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             //Find the last header and check if it belongs to this message!
             if (items.get(i) instanceof MessageHeaderParent) {
                 item = (MessageHeaderParent) items.get(i);
+                Log.e("qwerty2",i+"");
+                message.setHeaderPosition(i);
                 if (!item.getId().equals(message.getIdForHolder())) {
                     item = null;
                 }
@@ -309,6 +314,8 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             item.setColor((message.getStream() == null) ? mDefaultStreamHeaderColor : message.getStream().getParsedColor());
             items.add(getItemCount(true) - 1, item);
             notifyItemInserted(getItemCount(true) - 1);
+            message.setHeaderPosition(getItemCount(true) - 1);
+            Log.e("qwerty2",getItemCount(true) - 1+"");
         }
         items.add(getItemCount(true) - 1, message);
         notifyItemInserted(getItemCount(true) - 1);
@@ -613,6 +620,54 @@ public class RecyclerMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         } else {
             headerView.getLayoutParams().height = 0;
             headerView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public long getHeaderId(int position) {
+        Object object = items.get(position);
+        if (object instanceof Message) {
+            Message message = (Message) object;
+            Log.e("qwerty",position+" " + message.getHeaderPosition());
+            return message.getHeaderPosition();
+        }
+        return FloatingHeaderDecoration.NO_HEADER_ID;
+    }
+
+    @Override
+    public MessageHeaderParent.MessageHeaderHolder onCreateHeaderViewHolder(ViewGroup parent) {
+        MessageHeaderParent.MessageHeaderHolder holder = new MessageHeaderParent.MessageHeaderHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.message_header, parent, false));
+        holder.streamTextView.setText(privateHuddleText);
+        holder.streamTextView.setTextColor(Color.WHITE);
+        holder.setOnItemClickListener(onItemClickListener);
+        return holder;
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(MessageHeaderParent.MessageHeaderHolder viewholder, int position) {
+        Object object = getItem(position);
+        if (object instanceof  MessageHeaderParent) {
+            final MessageHeaderParent messageHeaderParent = (MessageHeaderParent) object;
+            final MessageHeaderParent.MessageHeaderHolder messageHeaderHolder = viewholder;
+
+            if (messageHeaderParent.getMessageType() == MessageType.STREAM_MESSAGE) {
+                messageHeaderHolder.streamTextView.setText(messageHeaderParent.getStream());
+                messageHeaderHolder.topicTextView.setText(messageHeaderParent.getSubject());
+
+                ViewCompat.setBackgroundTintList(messageHeaderHolder.arrowHead, ColorStateList.valueOf(messageHeaderParent.getColor()));
+                messageHeaderHolder.streamTextView.setBackgroundColor(messageHeaderParent.getColor());
+
+                if (messageHeaderParent.isMute()) {
+                    messageHeaderHolder.muteMessageImage.setVisibility(View.VISIBLE);
+                }
+
+            } else { //PRIVATE MESSAGE
+                messageHeaderHolder.streamTextView.setText(privateHuddleText);
+                messageHeaderHolder.streamTextView.setTextColor(Color.WHITE);
+                messageHeaderHolder.topicTextView.setText(messageHeaderParent.getDisplayRecipent());
+                ViewCompat.setBackgroundTintList(messageHeaderHolder.arrowHead, ColorStateList.valueOf(mDefaultStreamHeaderColor));
+                messageHeaderHolder.streamTextView.setBackgroundColor(mDefaultStreamHeaderColor);
+            }
         }
     }
 }

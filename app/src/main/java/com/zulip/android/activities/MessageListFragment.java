@@ -48,6 +48,8 @@ import com.zulip.android.util.MessageListener;
 import com.zulip.android.util.MutedTopics;
 import com.zulip.android.util.ZLog;
 import com.zulip.android.viewholders.HeaderSpaceItemDecoration;
+import com.zulip.android.viewholders.floatingRecyclerViewLables.DividerDecoration;
+import com.zulip.android.viewholders.floatingRecyclerViewLables.FloatingHeaderDecoration;
 
 import org.json.JSONObject;
 
@@ -154,6 +156,11 @@ public class MessageListFragment extends Fragment implements MessageListener {
             //but now setupLists is not called so hide footer here
             adapter.setFooterShowing(false);
         }
+        final DividerDecoration divider = new DividerDecoration.Builder(getContext()).build();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(divider);
+        FloatingHeaderDecoration decor = new FloatingHeaderDecoration(adapter);
+        recyclerView.addItemDecoration(decor, 1);
         recyclerView.setAdapter(adapter);
         registerForContextMenu(recyclerView);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
